@@ -5,7 +5,12 @@ class SessionsController < ApplicationController
   def create
     user = login(params[:email], params[:password])
 
-    redirect_to dashboard_path
+    if user
+      redirect_to dashboard_path
+    else
+      flash[:error] = "Invalid email and/or password"
+      render :new
+    end
   end
 
   def destroy

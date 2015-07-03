@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    title Passr.io
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+  body
+    nav.navbar.navbar-default.navbar-fixed-top
+      .container
+        .navbar-header
+          button.navbar-toggle.collapsed type="button" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          = link_to "Passr.io", root_path, class: "navbar-brand"
+        #navbar.navbar-collapse.collapse
+          ul.nav.navbar-nav
+            li= link_to "Home", root_path
+          ul.nav.navbar-nav.navbar-right
+            - if logged_in?
+              li= link_to "Sign Out", sessions_path, method: :delete
+            - else
+              li= link_to "Sign Up", sign_up_path
+              li= link_to "Sign In", sign_in_path
+    .container
+      = yield
+
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
