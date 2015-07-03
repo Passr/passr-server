@@ -12,7 +12,7 @@ RSpec.describe SessionsController, type: :controller do
   end
 
   describe 'POST #create' do
-    let(:user) { FactoryGirl.create(:user, password: 'password') }
+    let(:user) { FactoryGirl.create(:user) }
 
     before do
       post :create, {email: user.email, password: 'password'}

@@ -1,10 +1,10 @@
 Rails.application.routes.draw do
   get '/sign_in', to: 'sessions#new'
+  post '/sign_up', to: 'users#new'
+
   resource :sessions, only: [:create, :destroy]
-
   resource :dashboard, only: [:show]
-
-  # get '/sign_up', to: 'users#new'
+  resource :users, only: [:create]
 
   root to: 'root#index'
 end
