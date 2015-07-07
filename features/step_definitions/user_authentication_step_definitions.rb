@@ -13,6 +13,12 @@ Given(/^I have a user account$/) do
   @user = FactoryGirl.create(:user)
 end
 
+Given(/^I am logged in$/) do
+  visit(path_for('sign in'))
+
+  sign_in_form
+end
+
 def sign_up_form
   fill_in 'Email', with: 'john.doe@passr.io'
   fill_in 'Password', with: 'passw0rd'
