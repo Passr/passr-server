@@ -1,2 +1,6 @@
 gom 'github.com/gin-gonic/gin'
 gom 'github.com/BurntSushi/toml'
+gom 'github.com/manyminds/api2go'
+
+gom 'github.com/onsi/gomega'
+gom 'github.com/onsi/ginkgo/ginkgo'
