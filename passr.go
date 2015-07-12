@@ -32,6 +32,7 @@ func main() {
 	r.GET("/api/credentials", credentialsIndex)
 	r.GET("/api/credentials/:id", credentialsShow)
 	r.POST("/api/credentials", credentialsCreate)
+	r.PUT("/api/credentials/:id", credentialsUpdate)
 
 	r.Run(":" + config.Port)
 }
@@ -77,9 +78,7 @@ func credentialsIndex(c *gin.Context) {
 func credentialsShow(c *gin.Context) {
 	id := c.Param("id")
 
-	for i, x := range credentials {
-		fmt.Println(i)
-
+	for _, x := range credentials {
 		if x.ID == id {
 			json, err := jsonapi.MarshalToJSON(x)
 			if err != nil {
@@ -120,4 +119,36 @@ func credentialsCreate(c *gin.Context) {
 	}
 
 	c.Data(201, CONTENT_TYPE, json)
+}
+
+//----------------------------------------------------------------------------
+// PUT /api/credentials/:id
+//----------------------------------------------------------------------------
+func credentialsUpdate(c *gin.Context) {
+	id := c.Param("id")
+
+	for _, x := range credentials {
+		if x.ID == id {
+			if err := c.BindWith(&x, JsonApiBinding{}); err != nil {
+				fmt.Println(err)
+
+				// TODO: Render JSON API error to client
+				return
+			}
+
+			x.ID = id
+
+			json, err := jsonapi.MarshalToJSON(x)
+			if err != nil {
+				c.String(500, "Internal Server Error:"+err.Error())
+				return
+			}
+
+			c.Data(200, "application/vnd.api+json", json)
+
+			return
+		}
+	}
+
+	c.String(404, "NOT FOUND")
 }
