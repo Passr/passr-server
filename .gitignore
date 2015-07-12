@@ -12,3 +12,5 @@
 !/log/.keep
 /tmp
 .\#*
+/_vendor/*
+/config.conf
