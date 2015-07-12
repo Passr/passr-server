@@ -12,12 +12,17 @@ const (
 	CONTENT_TYPE = "application/vnd.api+json"
 )
 
-func main() {
-	config, err := config.Load(CONFIG_PATH)
+var conf config.Config
+
+func init() {
+	var err error
+	conf, err = config.Load(CONFIG_PATH)
 	if err != nil {
 		panic(err)
 	}
+}
 
+func main() {
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
@@ -29,5 +34,5 @@ func main() {
 	r.POST("/api/credentials", credentialsCreate)
 	r.PUT("/api/credentials/:id", credentialsUpdate)
 
-	r.Run(":" + config.Port)
+	r.Run(":" + conf.Port)
 }

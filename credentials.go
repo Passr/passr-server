@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/manyminds/api2go/jsonapi"
-	"math/rand"
 	"strconv"
 	"time"
 )
@@ -13,28 +12,30 @@ import (
 // Credentials
 //----------------------------------------------------------------------------
 type Credential struct {
-	ID               string `json:"-"`
-	EncryptedBlobB64 string
-	UserID           int `json:"-"`
+	ID               int    `json:"-" gorm:"primary_key" sql:"AUTO_INCREMENT"`
+	EncryptedBlobB64 string `sql:"type:text"`
+	UserID           int    `json:"-"`
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
 
 func (c Credential) GetID() string {
-	return c.ID
+	return strconv.Itoa(c.ID)
 }
 
-func (c *Credential) SetID(id string) error {
-	c.ID = id
-	return nil
+func (c *Credential) SetID(id string) (err error) {
+	c.ID, err = strconv.Atoi(id)
+	return
 }
-
-var credentials []Credential = []Credential{}
 
 //----------------------------------------------------------------------------
 // GET /api/credentials
 //----------------------------------------------------------------------------
 func credentialsIndex(c *gin.Context) {
+	var credentials []Credential
+
+	db.Find(&credentials)
+
 	json, err := jsonapi.MarshalToJSON(credentials)
 	if err != nil {
 		c.String(500, "Internal Server Error:"+err.Error())
@@ -48,23 +49,28 @@ func credentialsIndex(c *gin.Context) {
 // GET /api/credentials/:id
 //----------------------------------------------------------------------------
 func credentialsShow(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return
+	}
 
-	for _, x := range credentials {
-		if x.ID == id {
-			json, err := jsonapi.MarshalToJSON(x)
-			if err != nil {
-				c.String(500, "Internal Server Error:"+err.Error())
-				return
-			}
+	credential := &Credential{ID: id}
 
-			c.Data(200, "application/vnd.api+json", json)
-
+	query := db.First(credential)
+	if query.Error != nil {
+		if query.Error.Error() == "record not found" {
+			c.String(404, "record not found")
 			return
 		}
 	}
 
-	c.String(404, "NOT FOUND")
+	json, err := jsonapi.MarshalToJSON(credential)
+	if err != nil {
+		c.String(500, "Internal Server Error:"+err.Error())
+		return
+	}
+
+	c.Data(200, "application/vnd.api+json", json)
 }
 
 //----------------------------------------------------------------------------
@@ -80,9 +86,7 @@ func credentialsCreate(c *gin.Context) {
 		return
 	}
 
-	newCredential.ID = strconv.Itoa(rand.Int())
-
-	credentials = append(credentials, newCredential)
+	db.Create(&newCredential)
 
 	json, err := jsonapi.MarshalToJSON(newCredential)
 	if err != nil {
@@ -97,30 +101,40 @@ func credentialsCreate(c *gin.Context) {
 // PUT /api/credentials/:id
 //----------------------------------------------------------------------------
 func credentialsUpdate(c *gin.Context) {
-	id := c.Param("id")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return
+	}
 
-	for _, x := range credentials {
-		if x.ID == id {
-			if err := c.BindWith(&x, JsonApiBinding{}); err != nil {
-				fmt.Println(err)
+	savedCredential := &Credential{ID: id}
 
-				// TODO: Render JSON API error to client
-				return
-			}
-
-			x.ID = id
-
-			json, err := jsonapi.MarshalToJSON(x)
-			if err != nil {
-				c.String(500, "Internal Server Error:"+err.Error())
-				return
-			}
-
-			c.Data(200, "application/vnd.api+json", json)
-
+	query := db.First(savedCredential)
+	if query.Error != nil {
+		if query.Error.Error() == "record not found" {
+			c.String(404, "record not found")
 			return
 		}
 	}
 
-	c.String(404, "NOT FOUND")
+	var intermCredential Credential
+	if err := c.BindWith(&intermCredential, JsonApiBinding{}); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	savedCredential.EncryptedBlobB64 = intermCredential.EncryptedBlobB64
+
+	query = db.Save(savedCredential)
+	if query.Error != nil {
+		fmt.Println(err)
+		return
+	}
+
+	json, err := jsonapi.MarshalToJSON(savedCredential)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	c.Data(200, "application/vnd.api+json", json)
 }
