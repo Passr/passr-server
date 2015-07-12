@@ -33,6 +33,7 @@ func main() {
 	r.GET("/api/credentials/:id", credentialsShow)
 	r.POST("/api/credentials", credentialsCreate)
 	r.PUT("/api/credentials/:id", credentialsUpdate)
+	r.DELETE("/api/credentials/:id", credentialsDelete)
 
 	r.Run(":" + conf.Port)
 }

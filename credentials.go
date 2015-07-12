@@ -138,3 +138,25 @@ func credentialsUpdate(c *gin.Context) {
 
 	c.Data(200, "application/vnd.api+json", json)
 }
+
+//----------------------------------------------------------------------------
+// DELETE /api/credentials/:id
+//----------------------------------------------------------------------------
+func credentialsDelete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return
+	}
+
+	credential := &Credential{ID: id}
+
+	query := db.Delete(credential)
+	if query.Error != nil {
+		if query.Error.Error() == "record not found" {
+			c.String(404, "record not found")
+			return
+		}
+	}
+
+	c.String(204, "")
+}
