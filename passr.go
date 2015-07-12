@@ -4,13 +4,17 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/manyminds/api2go/jsonapi"
+	"math/rand"
 	"passr-server/config"
+	"strconv"
 	"time"
 )
 
 // Temporarily set config path in constant
 const (
 	CONFIG_PATH = "config.conf"
+
+	CONTENT_TYPE = "application/vnd.api+json"
 )
 
 func main() {
@@ -35,11 +39,11 @@ func main() {
 // Credentials
 //----------------------------------------------------------------------------
 type Credential struct {
-	ID               string    `json:"id"`
-	EncryptedBlobB64 string    `json:"encrypted_blob_b64"`
-	UserID           int       `json:"-"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID               string `json:"-"`
+	EncryptedBlobB64 string
+	UserID           int `json:"-"`
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
 }
 
 func (c Credential) GetID() string {
@@ -79,6 +83,8 @@ func credentialsCreate(c *gin.Context) {
 		return
 	}
 
+	newCredential.ID = strconv.Itoa(rand.Int())
+
 	credentials = append(credentials, newCredential)
 
 	json, err := jsonapi.MarshalToJSON(newCredential)
@@ -87,5 +93,5 @@ func credentialsCreate(c *gin.Context) {
 		return
 	}
 
-	c.Data(200, "application/vnd.api+json", json)
+	c.Data(200, CONTENT_TYPE, json)
 }

@@ -26,10 +26,5 @@ func (JsonApiBinding) Bind(req *http.Request, obj interface{}) error {
 		}
 	}
 
-	err = jsonapi.UnmarshalFromJSON(formData, obj)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return jsonapi.UnmarshalFromJSON(formData, obj)
 }
