@@ -30,6 +30,7 @@ func main() {
 	})
 
 	r.GET("/api/credentials", credentialsIndex)
+	r.GET("/api/credentials/:id", credentialsShow)
 	r.POST("/api/credentials", credentialsCreate)
 
 	r.Run(":" + config.Port)
@@ -71,6 +72,31 @@ func credentialsIndex(c *gin.Context) {
 }
 
 //----------------------------------------------------------------------------
+// GET /api/credentials/:id
+//----------------------------------------------------------------------------
+func credentialsShow(c *gin.Context) {
+	id := c.Param("id")
+
+	for i, x := range credentials {
+		fmt.Println(i)
+
+		if x.ID == id {
+			json, err := jsonapi.MarshalToJSON(x)
+			if err != nil {
+				c.String(500, "Internal Server Error:"+err.Error())
+				return
+			}
+
+			c.Data(200, "application/vnd.api+json", json)
+
+			return
+		}
+	}
+
+	c.String(404, "NOT FOUND")
+}
+
+//----------------------------------------------------------------------------
 // POST /api/credentials
 //----------------------------------------------------------------------------
 func credentialsCreate(c *gin.Context) {
@@ -93,5 +119,5 @@ func credentialsCreate(c *gin.Context) {
 		return
 	}
 
-	c.Data(200, CONTENT_TYPE, json)
+	c.Data(201, CONTENT_TYPE, json)
 }
