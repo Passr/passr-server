@@ -1,10 +1,11 @@
-package password
+package authentication
 
 import (
 	"crypto/rand"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"strings"
+	"encoding/base64"
 )
 
 const (
@@ -14,8 +15,13 @@ const (
 
 // This is returned when a new hash + salt combo is generated
 type Password struct {
+	// TODO: make hash []byte
 	hash string
 	salt string
+}
+
+func (p Password) hashB64() string {
+	return base64.StdEncoding.EncodeToString([]byte(p.hash))
 }
 
 // This handles taking a raw user password and making it into something safe
@@ -62,6 +68,14 @@ func CreatePassword(raw_pass string) *Password {
 	password.hash = hashPassword(salted_pass)
 
 	return password
+}
+
+func SaltAndHashPassword(raw_pass string) string {
+	password := CreatePassword(raw_pass)
+	pieces := []string{password.salt, password.hash}
+
+	saltAndHash := strings.Join(pieces, ":")
+        return base64.StdEncoding.EncodeToString([]byte(saltAndHash))
 }
 
 // Checks whether or not the correct password has been provided

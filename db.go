@@ -18,4 +18,5 @@ func init() {
 	db.DB().SetMaxOpenConns(20)
 
 	db.AutoMigrate(&Credential{})
+	db.AutoMigrate(&User{})
 }

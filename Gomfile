@@ -4,5 +4,7 @@ gom 'github.com/manyminds/api2go'
 gom 'github.com/jinzhu/gorm'
 gom 'github.com/lib/pq'
 
+gom 'golang.org/x/crypto/bcrypt'
+
 gom 'github.com/onsi/gomega'
 gom 'github.com/onsi/ginkgo/ginkgo'

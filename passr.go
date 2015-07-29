@@ -30,11 +30,14 @@ func main() {
 		c.String(200, "Passr.io")
 	})
 
+	// Credentials
 	r.GET("/api/credentials", credentialsIndex)
 	r.GET("/api/credentials/:id", credentialsShow)
 	r.POST("/api/credentials", credentialsCreate)
 	r.PUT("/api/credentials/:id", credentialsUpdate)
 	r.DELETE("/api/credentials/:id", credentialsDelete)
 
+	// User
+	r.POST("/api/user", createUser)
 	r.Run(":" + conf.Port)
 }
